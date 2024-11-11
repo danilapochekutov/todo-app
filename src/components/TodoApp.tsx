@@ -11,7 +11,6 @@ import List from '@mui/material/List';
 import Typography from "@mui/material/Typography";
 import { Box } from "@mui/material";
 
-
 enum Filter {
     ALL = 'all',
     ACTIVE = 'active',
@@ -24,27 +23,29 @@ const TodoApp: React.FC = () => {
     const todos = useSelector((state: RootState) => state.todos.todos);
     const dispatch = useDispatch();
 
-    const handleAddTodo = (text: string) => {
-        dispatch(addTodo(text));
-    };
-
-    const handleToggleTodo = (id: number) => {
-        dispatch(toggleTodo(id));
-    };
-
-    const handleClearCompleted = () => {
-        dispatch(clearCompleted());
-    };
-
-    const changeFilter = (newFilter: Filter) => {
-        setFilter(newFilter);
-    };
+    const handleAddTodo = (text: string) => dispatch(addTodo(text));
+    const handleToggleTodo = (id: number) => dispatch(toggleTodo(id));
+    const handleClearCompleted = () => dispatch(clearCompleted());
+    const changeFilter = (newFilter: Filter) => setFilter(newFilter);
 
     const filteredTodos = todos.filter(todo => {
         if (filter === Filter.ACTIVE) return !todo.completed;
         if (filter === Filter.COMPLETED) return todo.completed;
         return true;
     });
+
+    const getButtonStyle = (isActive: boolean) => ({
+        textAlign: 'center',
+        marginRight: '10px',
+        backgroundColor: isActive ? '#FF5733' : 'transparent',
+        color: isActive ? '#FFFFFF' : 'success',
+    });
+
+    const filterButtons = [
+        { label: 'All', filterType: Filter.ALL },
+        { label: 'Active', filterType: Filter.ACTIVE },
+        { label: 'Completed', filterType: Filter.COMPLETED },
+    ];
 
     return (
         <Container fixed>
@@ -56,11 +57,12 @@ const TodoApp: React.FC = () => {
                     textAlign: 'center',
                     color: '#FF5733',
                     paddingBottom: '1rem',
-                    textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)'
+                    textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)',
                 }}
             >
                 todos
             </Typography>
+            
             <TextField
                 type="text"
                 id="outlined-basic"
@@ -88,13 +90,7 @@ const TodoApp: React.FC = () => {
                 ))}
             </List>
 
-            <Box
-                sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    padding: '10px 0'
-                }}
-            >
+            <Box sx={{ display: 'flex', alignItems: 'center', padding: '10px 0' }}>
                 <Typography
                     sx={{
                         padding: '12px 20px',
@@ -106,58 +102,22 @@ const TodoApp: React.FC = () => {
                     {todos.filter(todo => !todo.completed).length} items left
                 </Typography>
 
-                <Box
-                    sx={{
-                        display: 'flex',
-                        margin: '0 auto'
-                    }}
-                >
-                    <Button
-                        sx={{
-                            textAlign: 'center',
-                            marginRight: '10px',
-                            backgroundColor: filter === Filter.ALL ? '#FF5733' : 'transparent',
-                            color: filter === Filter.ALL ? '#FFFFFF' : 'success',
-                        }}
-                        variant="outlined"
-                        color="success"
-                        onClick={() => changeFilter(Filter.ALL)}
-                    >
-                        All
-                    </Button>
-
-                    <Button
-                        sx={{
-                            textAlign: 'center',
-                            marginRight: '10px',
-                            backgroundColor: filter === Filter.ACTIVE ? '#FF5733' : 'transparent',
-                            color: filter === Filter.ACTIVE ? '#FFFFFF' : 'success',
-                        }}
-                        variant="outlined"
-                        color="success"
-                        onClick={() => changeFilter(Filter.ACTIVE)}
-                    >
-                        Active
-                    </Button>
-
-                    <Button
-                        sx={{
-                            textAlign: 'center',
-                            backgroundColor: filter === Filter.COMPLETED ? '#FF5733' : 'transparent',
-                            color: filter === Filter.COMPLETED ? '#FFFFFF' : 'success',
-                        }}
-                        variant="outlined"
-                        color="success"
-                        onClick={() => changeFilter(Filter.COMPLETED)}
-                    >
-                        Completed
-                    </Button>
+                <Box sx={{ display: 'flex', margin: '0 auto' }}>
+                    {filterButtons.map(({ label, filterType }) => (
+                        <Button
+                            key={filterType}
+                            sx={getButtonStyle(filter === filterType)}
+                            variant="outlined"
+                            color="success"
+                            onClick={() => changeFilter(filterType)}
+                        >
+                            {label}
+                        </Button>
+                    ))}
                 </Box>
 
                 <Button
-                    sx={{
-                        marginLeft: 'auto',
-                    }}
+                    sx={{ marginLeft: 'auto' }}
                     variant="outlined"
                     color="success"
                     onClick={handleClearCompleted}
@@ -165,7 +125,6 @@ const TodoApp: React.FC = () => {
                     Clear completed
                 </Button>
             </Box>
-
         </Container>
     );
 };
